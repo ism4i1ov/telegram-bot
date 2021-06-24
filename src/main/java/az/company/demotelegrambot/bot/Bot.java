@@ -1,8 +1,8 @@
 package az.company.demotelegrambot.bot;
 
 
-import az.company.demotelegrambot.commands.StartCommand;
-import az.company.demotelegrambot.service.UserService;
+import az.company.demotelegrambot.commands.RegisterStateEnum;
+import az.company.demotelegrambot.service.BotService;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,32 +17,44 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @PropertySource("classpath:telegram.properties")
 public class Bot extends TelegramLongPollingBot {
 
+    public Update update;
+    public Enum botStateEnum;
+
     private final Logger LOGGER = LogManager.getLogger(Bot.class);
-    private final UserService userService;
-    private final StartCommand startCommand;
+    private final BotService botService;
 
     @Value("${bot.name}")
     private String botName;
     @Value("${bot.token}")
     private String botToken;
 
-    public Bot(UserService userService, StartCommand startCommand) {
-        this.userService = userService;
-        this.startCommand = startCommand;
+    public Bot(BotService botService) {
+        this.botService = botService;
     }
-
 
     @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
-        System.err.println(update.getMessage().getFrom());
-        System.err.println(update.getMessage().getText());
-        if (update.getMessage().getText().equalsIgnoreCase("/register")) {
-            if (startCommand.start(update.getMessage())) {
-                execute(new SendMessage().setChatId(update.getMessage().getChatId()).setText("Registered successfully"));
-            }else {
-                execute(new SendMessage().setChatId(update.getMessage().getChatId()).setText("This account exist"));
-            }
+        String text = update.getMessage().getText();
+        String returnText;
+        this.update = update;
+        if (botStateEnum == null && haveCommand(text)) returnText = botService.checkCommandAndStart(this);
+        else if (botStateEnum != null) returnText = botService.checkCommandAndStart(this);
+        else returnText = "Bele bir command yoxdur xaish edirik yeniden cehd edin!";
+        execute(new SendMessage(update.getMessage().getChatId(), returnText));
+        LOGGER.info("_-=======================================-_");
+        LOGGER.info(returnText);
+        LOGGER.info("_-=======================================-_");
+    }
+
+    private boolean haveCommand(String command) {
+        command = command.toLowerCase();
+        switch (command) {
+            case "/register":
+                botStateEnum = RegisterStateEnum.FIRST;
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -55,5 +67,13 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return botToken;
+    }
+
+    public void setUpdate(Update update) {
+        this.update = update;
+    }
+
+    public void setBotStateEnum(Enum botStateEnum) {
+        this.botStateEnum = botStateEnum;
     }
 }
