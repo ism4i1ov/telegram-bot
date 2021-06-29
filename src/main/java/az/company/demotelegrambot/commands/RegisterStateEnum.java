@@ -6,6 +6,8 @@ import az.company.demotelegrambot.entity.UserEntity;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDate;
+
 
 public enum RegisterStateEnum {
     FINISH(bot -> {
@@ -14,63 +16,60 @@ public enum RegisterStateEnum {
             bot.execute(new SendMessage().setText("Please select correct you development language in list: "));
         } else {
             bot.execute(new SendMessage().setText("Please select you development language in list: "));
-            bot.setBotStateEnum(SIXTH);
+            bot.setBotStateEnum(null);
+        }
+    }),
+    ELEVENTH(bot -> {
+        Integer workExperience;
+        try {
+            workExperience = Integer.valueOf(bot.update.getMessage().getText());
+        } catch (Exception exception) {
+            workExperience = null;
+        }
+        if (workExperience == null) {
+            bot.execute(new SendMessage().setText("Please enter correct work experience: "));
+        } else {
+            if (workExperience.equals(0)) {
+                bot.setBotStateEnum(FINISH);
+            } else {
+                bot.execute(new SendMessage().setText("Please enter you development language in list: "));
+                bot.setBotStateEnum(FINISH);
+            }
+        }
+    }),
+    TENTH(bot -> {
+        String workExperience = bot.update.getMessage().getText();
+        if (workExperience == null) {
+            bot.execute(new SendMessage().setText("Please enter correct work experience: "));
+        } else {
+            if (workExperience.equals("0")) {
+                bot.setBotStateEnum(FINISH);
+            } else {
+                bot.execute(new SendMessage().setText("Please enter you development language in list: "));
+                bot.setBotStateEnum(ELEVENTH);
+            }
         }
     }),
     NINTH(bot -> {
-        Integer workExperience;
-        try {
-            workExperience = Integer.valueOf(bot.update.getMessage().getText());
-        } catch (Exception exception) {
-            workExperience = null;
-        }
-        if (workExperience == null) {
-            bot.execute(new SendMessage().setText("Please enter correct work experience: "));
-        } else {
-            if (workExperience.equals(0)) {
-                bot.setBotStateEnum(FINISH);
-            } else {
-                bot.execute(new SendMessage().setText("Please enter you development language in list: "));
-                bot.setBotStateEnum(SEVENTH);
-            }
-        }
-    }),
-    EIGHTH(bot -> {
-        Integer workExperience;
-        try {
-            workExperience = Integer.valueOf(bot.update.getMessage().getText());
-        } catch (Exception exception) {
-            workExperience = null;
-        }
-        if (workExperience == null) {
-            bot.execute(new SendMessage().setText("Please enter correct work experience: "));
-        } else {
-            if (workExperience.equals(0)) {
-                bot.setBotStateEnum(FINISH);
-            } else {
-                bot.execute(new SendMessage().setText("Please enter you development language in list: "));
-                bot.setBotStateEnum(NINTH);
-            }
-        }
-    }),
-    EIGHTH(bot -> {
         String developmentLanguageOtherSkills = bot.update.getMessage().getText();
-        bot.execute(new SendMessage().setText("Please enter work experience years example: 1 "));
-        bot.execute(new SendMessage().setText("If you don't have work experience enter \"0\": "));
         bot.userEntity.getDevelopmentLangEntity().setOthers(developmentLanguageOtherSkills);
-        bot.setBotStateEnum(EIGHTH);
+        bot.execute(new SendMessage().setText("Please enter company name where you work: "));
+        bot.execute(new SendMessage().setText("If you did't work write \"0\": "));
+//        bot.execute(new SendMessage().setText("Please enter work experience years example: 1 "));
+//        bot.execute(new SendMessage().setText("If you don't have work experience enter \"0\": "));
+//        bot.setBotStateEnum(TENTH);
     }),
-    SEVENTH(bot -> {
+    EIGHTH(bot -> {
         String developmentLanguageSkills = bot.update.getMessage().getText();
         if (developmentLanguageSkills == null || developmentLanguageSkills.trim().isEmpty()) {
             bot.execute(new SendMessage().setText("Please enter correct skills on development language: "));
         } else {
             bot.execute(new SendMessage().setText("Please enter other skills: "));
             bot.userEntity.getDevelopmentLangEntity().setSkills(developmentLanguageSkills);
-            bot.setBotStateEnum(SEVENTH);
+            bot.setBotStateEnum(NINTH);
         }
     }),
-    SIXTH(bot -> {
+    SEVENTH(bot -> {
         String developmentLanguage = bot.update.getMessage().getText();
         if (developmentLanguage == null || developmentLanguage.trim().isEmpty()) {
             bot.execute(new SendMessage().setText("Please select correct you development language in list: "));
@@ -85,27 +84,28 @@ public enum RegisterStateEnum {
         } else {
             bot.execute(new SendMessage().setText("Please enter skills on development language: "));
             bot.userEntity.getDevelopmentLangEntity().setName(developmentLanguage);
-            bot.setBotStateEnum(SIXTH);
+            bot.setBotStateEnum(EIGHTH);
+        }
+    }),
+    SIXTH(bot -> {
+        String birthDay = bot.update.getMessage().getText();
+        if (birthDay == null || birthDay.trim().isEmpty()) {
+            bot.execute(new SendMessage().setText("Please enter you correct birth day example: 01-10-1995 "));
+        } else {
+            bot.execute(new SendMessage().setText("Please select you development language in list: "));
+            LocalDate birth = LocalDate.parse(birthDay);
+            bot.getUserEntity().setBirthDay(birth);
+            bot.setBotStateEnum(SEVENTH);
         }
     }),
     FIFTH(bot -> {
-        String fatherName = bot.update.getMessage().getText();
-        if (fatherName == null || fatherName.trim().isEmpty()) {
-            bot.execute(new SendMessage().setText("Please enter you correct father name: "));
-        } else {
-            bot.execute(new SendMessage().setText("Please select you development language in list:"));
-            bot.getUserEntity().setFatherName(fatherName);
-            bot.setBotStateEnum(FIFTH);
-        }
-    }),
-    FOURTH(bot -> {
         String city = bot.update.getMessage().getText();
         if (city == null || city.trim().isEmpty()) {
             bot.execute(new SendMessage().setText("Please enter you correct father name: "));
         } else {
             bot.execute(new SendMessage().setText("Please enter birth day example: 01-10-1995 "));
             bot.getUserEntity().setAddress(city);
-            bot.setBotStateEnum(FIFTH);
+            bot.setBotStateEnum(SIXTH);
         }
     }),
     FOURTH(bot -> {
