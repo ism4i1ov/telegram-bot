@@ -38,6 +38,9 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         String text = update.getMessage().getText();
         this.update = update;
+        LOGGER.info("Request from bot chatId: " +
+                update.getMessage().getChatId() + " username: " +
+                update.getMessage().getChat().getUserName() + " text: " + update.getMessage().getText() + " Language " + update.getMessage().getFrom().getLanguageCode());
         if (botStateEnum == null && haveCommand(text)) botService.checkCommandAndStart(this);
         else if (botStateEnum != null) botService.checkCommandAndStart(this);
     }

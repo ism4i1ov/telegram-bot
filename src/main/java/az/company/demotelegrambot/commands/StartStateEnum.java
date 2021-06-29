@@ -1,6 +1,8 @@
 package az.company.demotelegrambot.commands;
 
 import az.company.demotelegrambot.bot.Bot;
+import az.company.demotelegrambot.text.TextsEnum;
+import com.vdurmont.emoji.EmojiParser;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -13,18 +15,19 @@ public enum StartStateEnum {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         SendMessage sendMessage = new SendMessage().setChatId(bot.update.getMessage().getChatId());
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
-        sendMessage.setText("Select need category");
+        String languageCode = bot.update.getMessage().getFrom().getLanguageCode();
+        sendMessage.setText(TextsEnum.SELECT_CATEGORY.getMsgByLang(languageCode));
 
         KeyboardRow keyboardFirstRow = new KeyboardRow();
-        keyboardFirstRow.add("Jobs \\xF0\\x9F\\x92\\xB0");
-        keyboardFirstRow.add("Developers \\xF0\\x9F\\x91\\xA6");
+
+        keyboardFirstRow.add(TextsEnum.DEVELOPERS_TEXT.getMsgByLang(languageCode));
 
         KeyboardRow keyboardSecondRow = new KeyboardRow();
-        keyboardSecondRow.add("Register developers \\xF0\\x9F\\x94\\x90");
-        keyboardSecondRow.add("Add vacancy \\xF0\\x9F\\x94\\x90");
+        keyboardSecondRow.add(TextsEnum.NEW_DEVELOPER.getMsgByLang(languageCode));
+        keyboardSecondRow.add(TextsEnum.NEW_VACANCY.getMsgByLang(languageCode));
 
         KeyboardRow keyboardThirdRow = new KeyboardRow();
-        keyboardThirdRow.add("Find vacancy \\xE2\\x9C\\x85");
+        keyboardThirdRow.add(TextsEnum.FIND_VACANCY.getMsgByLang(languageCode));
 
         ArrayList<KeyboardRow> keyboardRows = new ArrayList<>();
         keyboardRows.add(keyboardFirstRow);

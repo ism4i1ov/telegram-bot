@@ -45,11 +45,9 @@ public class UserEntity implements Serializable {
     private String address;
 
     @OneToMany
-    @JoinColumn(name = "id", referencedColumnName = "user_id")
     private List<WorkExperienceEntity> workExperienceEntities;
 
     @OneToOne(mappedBy = "userEntity")
-    @JoinColumn(name = "id", referencedColumnName = "user_id")
     private DevelopmentLangEntity developmentLangEntity;
 
     public Long getId() {
