@@ -123,8 +123,29 @@ public class UsersDto implements Serializable {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return String.format("UsersDto{id=%d, name='%s', surname='%s', fatherName='%s', birthDay=%s, username='%s', chatId=%d, address='%s', workExperienceEntities=%s, developmentLangEntity=%s}", id, name, surname, fatherName, birthDay, username, chatId, address, workExperienceEntities, developmentLangEntity);
+    private String toStringAz() {
+        return String.format("Ad: %s\nSoyad: %s\nAta adı: %s\nYaş: %s\nŞəhər: %s\nTəcrübə: %s\nProqramlaşdırma dili: %s", name, surname, fatherName, birthDay, address,
+                workExperienceEntities.isEmpty() ? "Yoxdur" : "Var",
+                developmentLangEntity.getName());
+    }
+
+    private String toStringRu() {
+        return String.format("Имя: %s\nФамилия: %s\nОтчество: %s\nВозраст: %s\nГород: %s\nОпыт работы: %s\nЯзык программирование: %s", name, surname, fatherName, birthDay, address,
+                workExperienceEntities.isEmpty() ? "Нету" : "Есть",
+                developmentLangEntity.getName());
+    }
+
+    private String toStringEn() {
+        return String.format("Name: %s\nSurname: %s\nFather name: %s\nAge: %s\nCity: %s\nWork experience: %s\nDevelopment language: %s", name, surname, fatherName, birthDay, address,
+                workExperienceEntities.isEmpty() ? "Don't have" : "Have",
+                developmentLangEntity.getName());
+    }
+
+    public String getUserInfoByLang(String lang) {
+        if ("az".equalsIgnoreCase(lang) || "tr".equalsIgnoreCase(lang)) {
+            return toStringAz();
+        } else if ("ru".equalsIgnoreCase(lang)) {
+            return toStringRu();
+        } else return toStringEn();
     }
 }

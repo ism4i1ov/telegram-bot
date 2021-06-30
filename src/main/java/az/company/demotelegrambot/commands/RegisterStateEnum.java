@@ -7,6 +7,7 @@ import az.company.demotelegrambot.dto.WorkExperienceDto;
 import az.company.demotelegrambot.entity.UserEntity;
 import az.company.demotelegrambot.service.UserService;
 import az.company.demotelegrambot.text.TextsEnum;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -282,6 +283,7 @@ public enum RegisterStateEnum {
         return process;
     }
 
+    @SneakyThrows
     public void startProcess(Bot bot) throws TelegramApiException {
         this.process.getProcess(bot);
     }

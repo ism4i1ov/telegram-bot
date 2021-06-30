@@ -6,11 +6,9 @@ import az.company.demotelegrambot.service.UserService;
 import az.company.demotelegrambot.text.TextsEnum;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +31,10 @@ public enum DevelopersStateEnum {
         if (userByDevLangName == null || userByDevLangName.isEmpty()) {
             bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.FIND_RESULT_DONT_HAVE.getMsgByLang(languageCode)));
         } else {
-            userByDevLangName.forEach(dto -> {
-                try {
-                    bot.execute(sendMessage.setChatId(chatId).setText(dto.toString()));
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            });
+            for (UsersDto dto : userByDevLangName) {
+                SendMessage sendMessage1 = new SendMessage();
+                bot.execute(sendMessage1.setChatId(chatId).setText(dto.getUserInfoByLang(languageCode)));
+            }
             sendMessage.setReplyMarkup(new ReplyKeyboardMarkup());
         }
     }),

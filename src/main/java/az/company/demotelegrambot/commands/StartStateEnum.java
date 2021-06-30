@@ -2,6 +2,7 @@ package az.company.demotelegrambot.commands;
 
 import az.company.demotelegrambot.bot.Bot;
 import az.company.demotelegrambot.text.TextsEnum;
+import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -45,7 +46,8 @@ public enum StartStateEnum {
         this.process = process;
     }
 
-    public void startProcess(Bot bot) throws TelegramApiException {
+    @SneakyThrows
+    public void startProcess(Bot bot) {
         this.process.getProcess(bot);
     }
 
