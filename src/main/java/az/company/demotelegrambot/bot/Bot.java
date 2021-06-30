@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
@@ -23,6 +22,8 @@ public class Bot extends TelegramLongPollingBot {
     public Update update;
     public Enum botStateEnum;
     public UserEntity userEntity;
+    public String languageCode;
+    public Long chatId;
 
     private final Logger LOGGER = LogManager.getLogger(Bot.class);
     @Autowired
@@ -38,9 +39,10 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         String text = update.getMessage().getText();
         this.update = update;
-        LOGGER.info("Request from bot chatId: " +
-                update.getMessage().getChatId() + " username: " +
-                update.getMessage().getChat().getUserName() + " text: " + update.getMessage().getText() + " Language " + update.getMessage().getFrom().getLanguageCode());
+        languageCode = update.getMessage().getFrom().getLanguageCode();
+        chatId = update.getMessage().getChatId();
+        LOGGER.info("Request from bot chatId: " + chatId + ", username: " +
+                update.getMessage().getChat().getUserName() + ", text: " + update.getMessage().getText() + ", language: " + update.getMessage().getFrom().getLanguageCode());
         if (botStateEnum == null && haveCommand(text)) botService.checkCommandAndStart(this);
         else if (botStateEnum != null) botService.checkCommandAndStart(this);
     }
@@ -72,6 +74,10 @@ public class Bot extends TelegramLongPollingBot {
 
     public void setBotStateEnum(Enum botStateEnum) {
         this.botStateEnum = botStateEnum;
+    }
+
+    public void setBotStateEnumWork() {
+        this.botStateEnum = RegisterStateEnum.NINTH;
     }
 
     public void setUserEntity(UserEntity entity) {

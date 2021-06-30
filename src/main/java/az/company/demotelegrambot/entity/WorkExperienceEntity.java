@@ -1,10 +1,8 @@
 package az.company.demotelegrambot.entity;
 
-import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "work_ecperience")
@@ -20,12 +18,8 @@ public class WorkExperienceEntity implements Serializable {
     private String companyName;
 
     @Basic(optional = false)
-    @Column(name = "date_from_on_work")
-    private LocalDate dateFromOnWork;
-
-    @Basic(optional = false)
-    @Column(name = "date_to_on_work")
-    private LocalDate dateToOnWork;
+    @Column(name = "work_experience_years")
+    private String workExperienceYears;
 
     @Basic(optional = false)
     @Column(name = "specialization_on_work")
@@ -53,21 +47,12 @@ public class WorkExperienceEntity implements Serializable {
         return this;
     }
 
-    public LocalDate getDateFromOnWork() {
-        return dateFromOnWork;
+    public String getWorkExperienceYears() {
+        return workExperienceYears;
     }
 
-    public WorkExperienceEntity setDateFromOnWork(LocalDate dateFromOnWork) {
-        this.dateFromOnWork = dateFromOnWork;
-        return this;
-    }
-
-    public LocalDate getDateToOnWork() {
-        return dateToOnWork;
-    }
-
-    public WorkExperienceEntity setDateToOnWork(LocalDate dateToOnWork) {
-        this.dateToOnWork = dateToOnWork;
+    public WorkExperienceEntity setWorkExperienceYears(String workExperienceYears) {
+        this.workExperienceYears = workExperienceYears;
         return this;
     }
 

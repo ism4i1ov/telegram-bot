@@ -3,73 +3,146 @@ package az.company.demotelegrambot.commands;
 import az.company.demotelegrambot.bot.Bot;
 import az.company.demotelegrambot.entity.DevelopmentLangEntity;
 import az.company.demotelegrambot.entity.UserEntity;
+import az.company.demotelegrambot.entity.WorkExperienceEntity;
+import az.company.demotelegrambot.service.UserRegisterService;
+import az.company.demotelegrambot.text.TextsEnum;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public enum RegisterStateEnum {
     FINISH(bot -> {
-        String name = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
-        if (name == null || name.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please select correct you development language in list: "));
+        String languageCode = bot.languageCode;
+        UserEntity userEntity = RegisterStateEnum.FINISH.userRegisterService.saveUser(bot.userEntity);
+        if (userEntity == null) {
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.FINISH_ERROR_USER_REGISTER.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please select you development language in list: "));
-            bot.setBotStateEnum(null);
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.FINISH_SUCCESS_USER_REGISTER.getMsgByLang(languageCode)));
+        }
+        bot.setBotStateEnum(null);
+    }),
+    THIRTEENTH(bot -> {
+        String haveJob = bot.update.getMessage().getText();
+        String languageCode = bot.languageCode;
+        Long chatId = bot.update.getMessage().getChatId();
+        if (haveJob == null || haveJob.trim().isEmpty()) {
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_SPECIALIZATION_ON_WORK.getMsgByLang(languageCode)));
+        } else if (haveJob.equalsIgnoreCase(TextsEnum.NO_HAVE_JOB.getMsgByLang(languageCode)) || haveJob.equalsIgnoreCase(TextsEnum.YES_HAVE_JOB.getMsgByLang(languageCode))) {
+            bot.setBotStateEnumWork();
+        } else {
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setReplyMarkup(new ReplyKeyboardMarkup());
+            bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.FINISH_USER_REGISTER.getMsgByLang(languageCode)));
+            bot.setBotStateEnum(FINISH);
+        }
+    }),
+    TWELFTH(bot -> {
+        String specialization = bot.update.getMessage().getText();
+        String languageCode = bot.languageCode;
+        Long chatId = bot.update.getMessage().getChatId();
+        if (specialization == null || specialization.trim().isEmpty()) {
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_SPECIALIZATION_ON_WORK.getMsgByLang(languageCode)));
+        } else {
+            bot.userEntity.getWorkExperienceEntities().get(bot.userEntity.getWorkExperienceEntities().size() - 1).setSpecializationOnWork(specialization);
+            SendMessage sendMessage = new SendMessage();
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+            List<KeyboardRow> keyboardRows = new ArrayList<>();
+            KeyboardRow keyboardRow = new KeyboardRow();
+            keyboardRow.add(TextsEnum.YES_HAVE_JOB.getMsgByLang(languageCode));
+            keyboardRow.add(TextsEnum.NO_HAVE_JOB.getMsgByLang(languageCode));
+            keyboardRows.add(keyboardRow);
+            replyKeyboardMarkup.setKeyboard(keyboardRows);
+            bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.HAVE_MORE_JOBS.getMsgByLang(languageCode)));
+            bot.setBotStateEnum(THIRTEENTH);
         }
     }),
     ELEVENTH(bot -> {
-        Integer workExperience;
+        String workExperienceYear = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
-        try {
-            workExperience = Integer.valueOf(bot.update.getMessage().getText());
-        } catch (Exception exception) {
-            workExperience = null;
-        }
-        if (workExperience == null) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter correct work experience: "));
+        String languageCode = bot.languageCode;
+        if (workExperienceYear == null ||
+                (!workExperienceYear.equalsIgnoreCase(TextsEnum.WORK_EXPERIENCE_1_YEARS.getMsgByLang(languageCode)) &&
+                        !workExperienceYear.equalsIgnoreCase(TextsEnum.WORK_EXPERIENCE_1_2_YEARS.getMsgByLang(languageCode)) &&
+                        !workExperienceYear.equalsIgnoreCase(TextsEnum.WORK_EXPERIENCE_3_5_YEARS.getMsgByLang(languageCode)) &&
+                        !workExperienceYear.equalsIgnoreCase(TextsEnum.WORK_EXPERIENCE_6_10_YEARS.getMsgByLang(languageCode)) &&
+                        !workExperienceYear.equalsIgnoreCase(TextsEnum.WORK_EXPERIENCE_11_YEARS.getMsgByLang(languageCode)))) {
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.SELECT_CORRECT_WORK_EXPERIENCE_YEARS.getMsgByLang(languageCode)));
         } else {
-            if (workExperience.equals(0)) {
-                bot.setBotStateEnum(FINISH);
-            } else {
-                bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you development language in list: "));
-                bot.setBotStateEnum(FINISH);
-            }
+            bot.userEntity.getWorkExperienceEntities().get(bot.userEntity.getWorkExperienceEntities().size() - 1).setWorkExperienceYears(workExperienceYear);
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setReplyMarkup(new ReplyKeyboardMarkup());
+            bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.ENTER_SPECIALIZATION_ON_WORK.getMsgByLang(languageCode)));
+            bot.setBotStateEnum(TWELFTH);
         }
     }),
     TENTH(bot -> {
-        String workExperience = bot.update.getMessage().getText();
+        String companyName = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
-        if (workExperience == null) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter correct work experience: "));
+        String languageCode = bot.languageCode;
+        if (companyName == null) {
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_COMPANY_NAME.getMsgByLang(languageCode)));
         } else {
-            if (workExperience.equals("0")) {
+            if (companyName.equals(TextsEnum.DOES_HAVE_WORK_EXPERIENCE.getMsgByLang(languageCode))) {
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setReplyMarkup(new ReplyKeyboardMarkup());
+                bot.execute(sendMessage);
                 bot.setBotStateEnum(FINISH);
             } else {
-                bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you development language in list: "));
+                bot.userEntity.getWorkExperienceEntities().add(new WorkExperienceEntity().setCompanyName(companyName));
+                SendMessage sendMessage = new SendMessage();
+                ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+                List<KeyboardRow> keyboardRows = new ArrayList<>();
+                KeyboardRow firstKeyboardRow = new KeyboardRow();
+                firstKeyboardRow.add(TextsEnum.WORK_EXPERIENCE_1_YEARS.getMsgByLang(languageCode));
+                keyboardRows.add(firstKeyboardRow);
+                KeyboardRow secondKeyboardRow = new KeyboardRow();
+                secondKeyboardRow.add(TextsEnum.WORK_EXPERIENCE_1_2_YEARS.getMsgByLang(languageCode));
+                secondKeyboardRow.add(TextsEnum.WORK_EXPERIENCE_3_5_YEARS.getMsgByLang(languageCode));
+                secondKeyboardRow.add(TextsEnum.WORK_EXPERIENCE_6_10_YEARS.getMsgByLang(languageCode));
+                keyboardRows.add(secondKeyboardRow);
+                KeyboardRow thirdKeyboardRow = new KeyboardRow();
+                thirdKeyboardRow.add(TextsEnum.WORK_EXPERIENCE_11_YEARS.getMsgByLang(languageCode));
+                keyboardRows.add(thirdKeyboardRow);
+                replyKeyboardMarkup.setKeyboard(keyboardRows);
+                sendMessage.setReplyMarkup(replyKeyboardMarkup);
+                bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.SELECT_WORK_EXPERIENCE_YEARS.getMsgByLang(languageCode)));
                 bot.setBotStateEnum(ELEVENTH);
             }
         }
     }),
     NINTH(bot -> {
         Long chatId = bot.update.getMessage().getChatId();
+        String languageCode = bot.languageCode;
         String developmentLanguageOtherSkills = bot.update.getMessage().getText();
         bot.userEntity.getDevelopmentLangEntity().setOthers(developmentLanguageOtherSkills);
-        bot.execute(new SendMessage().setChatId(chatId).setText("Please enter company name where you work: "));
-        bot.execute(new SendMessage().setChatId(chatId).setText("If you did't work write \"0\": "));
-//        bot.execute(new SendMessage().setText("Please enter work experience years example: 1 "));
-//        bot.execute(new SendMessage().setText("If you don't have work experience enter \"0\": "));
+        bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_COMPANY_NAME.getMsgByLang(languageCode)));
+        SendMessage sendMessage = new SendMessage();
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add(TextsEnum.DOES_HAVE_WORK_EXPERIENCE.getMsgByLang(languageCode));
+        keyboardRows.add(keyboardRow);
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+        bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.IF_DOES_HAVE_WORK_EXPERIENCE.getMsgByLang(languageCode)));
         bot.setBotStateEnum(TENTH);
     }),
     EIGHTH(bot -> {
         Long chatId = bot.update.getMessage().getChatId();
         String developmentLanguageSkills = bot.update.getMessage().getText();
+        String languageCode = bot.languageCode;
         if (developmentLanguageSkills == null || developmentLanguageSkills.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter correct skills on development language: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_SKILLS.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter other skills: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_OTHER_SKILLS.getMsgByLang(languageCode)));
             bot.userEntity.getDevelopmentLangEntity().setSkills(developmentLanguageSkills);
             bot.setBotStateEnum(NINTH);
         }
@@ -77,8 +150,9 @@ public enum RegisterStateEnum {
     SEVENTH(bot -> {
         String developmentLanguage = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
+        String languageCode = bot.languageCode;
         if (developmentLanguage == null || developmentLanguage.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please select correct you development language in list: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.SELECT_CORRECT_DEVELOPMENT_LANG.getMsgByLang(languageCode)));
         } else if (!"JAVA".equalsIgnoreCase(developmentLanguage) &&
                 !"PHP".equalsIgnoreCase(developmentLanguage) &&
                 !"PYTHON".equalsIgnoreCase(developmentLanguage) &&
@@ -86,9 +160,11 @@ public enum RegisterStateEnum {
                 !"KOTLIN".equalsIgnoreCase(developmentLanguage) &&
                 !"SCALA".equalsIgnoreCase(developmentLanguage) &&
                 !"C/C++".equalsIgnoreCase(developmentLanguage)) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please select correct you development language in list: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.SELECT_CORRECT_DEVELOPMENT_LANG.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter skills on development language: "));
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setReplyMarkup(new ReplyKeyboardMarkup());
+            bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.ENTER_SKILLS.getMsgByLang(languageCode)));
             bot.userEntity.getDevelopmentLangEntity().setName(developmentLanguage);
             bot.setBotStateEnum(EIGHTH);
         }
@@ -96,10 +172,27 @@ public enum RegisterStateEnum {
     SIXTH(bot -> {
         String birthDay = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
+        String languageCode = bot.languageCode;
         if (birthDay == null || birthDay.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you correct birth day example: 01-10-1995 "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_BIRTH_DAY.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please select you development language in list: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.SELECT_DEVELOPMENT_LANG.getMsgByLang(languageCode)));
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+            List<KeyboardRow> keyboardRows = new ArrayList<>();
+            KeyboardRow firstKeyboardRow = new KeyboardRow();
+            firstKeyboardRow.add("Java");
+            firstKeyboardRow.add("PHP");
+            firstKeyboardRow.add("Python");
+            keyboardRows.add(firstKeyboardRow);
+            KeyboardRow secondKeyboardRow = new KeyboardRow();
+            secondKeyboardRow.add("GO");
+            secondKeyboardRow.add("Kotlin");
+            secondKeyboardRow.add("Scala");
+            keyboardRows.add(secondKeyboardRow);
+            KeyboardRow thirdKeyboardRow = new KeyboardRow();
+            thirdKeyboardRow.add("C/C++");
+            keyboardRows.add(thirdKeyboardRow);
+            replyKeyboardMarkup.setKeyboard(keyboardRows);
             LocalDate birth = LocalDate.parse(birthDay);
             bot.getUserEntity().setBirthDay(birth);
             bot.setBotStateEnum(SEVENTH);
@@ -108,10 +201,11 @@ public enum RegisterStateEnum {
     FIFTH(bot -> {
         String city = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
+        String languageCode = bot.languageCode;
         if (city == null || city.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you correct city name: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_CITY_NAME.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter birth day example: 01-10-1995 "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_BIRTH_DAY.getMsgByLang(languageCode)));
             bot.getUserEntity().setAddress(city);
             bot.setBotStateEnum(SIXTH);
         }
@@ -119,10 +213,11 @@ public enum RegisterStateEnum {
     FOURTH(bot -> {
         String fatherName = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
+        String languageCode = bot.languageCode;
         if (fatherName == null || fatherName.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you correct father name: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_FATHER_NAME.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter city name: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CITY_NAME.getMsgByLang(languageCode)));
             bot.getUserEntity().setFatherName(fatherName);
             bot.setBotStateEnum(FIFTH);
         }
@@ -130,35 +225,49 @@ public enum RegisterStateEnum {
     THIRD(bot -> {
         String surname = bot.update.getMessage().getText();
         Long chatId = bot.update.getMessage().getChatId();
+        String languageCode = bot.languageCode;
         if (surname == null || surname.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you correct surname: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_SURNAME.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter father name: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_FATHER_NAME.getMsgByLang(languageCode)));
             bot.getUserEntity().setSurname(surname);
             bot.setBotStateEnum(FOURTH);
         }
     }),
     SECOND(bot -> {
         String name = bot.update.getMessage().getText();
-        Long chatId = bot.update.getMessage().getChatId();
+        Long chatId = bot.chatId;
+        String languageCode = bot.languageCode;
         if (name == null || name.trim().isEmpty()) {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you correct name: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_CORRECT_NAME.getMsgByLang(languageCode)));
         } else {
-            bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you surname: "));
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.ENTER_SURNAME.getMsgByLang(languageCode)));
             bot.getUserEntity().setName(name);
             bot.setBotStateEnum(THIRD);
         }
     }),
     FIRST(bot -> {
-        Long chatId = bot.update.getMessage().getChatId();
-        bot.setBotStateEnum(SECOND);
-        bot.execute(new SendMessage().setChatId(chatId).setText("Please enter you name: "));
-        bot.setUserEntity(new UserEntity()
-                .setChatId(bot.update.getMessage().getChatId())
-                .setUsername(bot.update.getMessage().getChat().getUserName())
-                .setDevelopmentLangEntity(new DevelopmentLangEntity()));
+        Long chatId = bot.chatId;
+        boolean userExists = RegisterStateEnum.FIRST.userRegisterService.existsUser(chatId);
+        String languageCode = bot.languageCode;
+        if (userExists) {
+            bot.execute(new SendMessage().setChatId(chatId).setText(TextsEnum.USER_EXISTS.getMsgByLang(languageCode)));
+        } else {
+            bot.setBotStateEnum(SECOND);
+            SendMessage sendMessage = new SendMessage();
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+            sendMessage.setReplyMarkup(replyKeyboardMarkup);
+            bot.execute(sendMessage.setChatId(chatId).setText(TextsEnum.ENTER_NAME.getMsgByLang(languageCode)));
+            bot.setUserEntity(new UserEntity()
+                    .setChatId(bot.update.getMessage().getChatId())
+                    .setUsername(bot.update.getMessage().getChat().getUserName())
+                    .setDevelopmentLangEntity(new DevelopmentLangEntity())
+                    .setWorkExperienceEntities(new ArrayList<>()));
+        }
     });
 
+    @Autowired
+    private UserRegisterService userRegisterService;
     private final AbstractInterface process;
 
     RegisterStateEnum(AbstractInterface process) {

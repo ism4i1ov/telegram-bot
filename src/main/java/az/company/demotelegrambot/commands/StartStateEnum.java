@@ -2,7 +2,6 @@ package az.company.demotelegrambot.commands;
 
 import az.company.demotelegrambot.bot.Bot;
 import az.company.demotelegrambot.text.TextsEnum;
-import com.vdurmont.emoji.EmojiParser;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -12,10 +11,11 @@ import java.util.ArrayList;
 
 public enum StartStateEnum {
     FIRST(bot -> {
+        String languageCode = bot.languageCode;
+        Long chatId = bot.chatId;
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        SendMessage sendMessage = new SendMessage().setChatId(bot.update.getMessage().getChatId());
+        SendMessage sendMessage = new SendMessage().setChatId(chatId);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
-        String languageCode = bot.update.getMessage().getFrom().getLanguageCode();
         sendMessage.setText(TextsEnum.SELECT_CATEGORY.getMsgByLang(languageCode));
 
         KeyboardRow keyboardFirstRow = new KeyboardRow();
