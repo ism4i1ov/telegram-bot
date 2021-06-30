@@ -1,6 +1,8 @@
 package az.company.demotelegrambot.entity;
 
 
+import az.company.demotelegrambot.dto.WorkExperienceDto;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -28,6 +30,14 @@ public class WorkExperienceEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity userEntity;
+
+    public static WorkExperienceEntity toEntity(WorkExperienceDto dto, UserEntity userEntity) {
+        return new WorkExperienceEntity().setId(dto.getId())
+                .setSpecializationOnWork(dto.getSpecializationOnWork())
+                .setWorkExperienceYears(dto.getWorkExperienceYears())
+                .setCompanyName(dto.getCompanyName())
+                .setUserEntity(userEntity);
+    }
 
     public Long getId() {
         return id;

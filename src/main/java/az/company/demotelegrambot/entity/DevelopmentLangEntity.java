@@ -1,5 +1,6 @@
 package az.company.demotelegrambot.entity;
 
+import az.company.demotelegrambot.dto.DevelopmentLangDto;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -29,6 +30,14 @@ public class DevelopmentLangEntity implements Serializable {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity userEntity;
+
+    public static DevelopmentLangEntity toEntity(DevelopmentLangDto developmentLangDto, UserEntity userEntity) {
+        return new DevelopmentLangEntity().setId(developmentLangDto.getId())
+                .setOthers(developmentLangDto.getOthers())
+                .setSkills(developmentLangDto.getSkills())
+                .setName(developmentLangDto.getName())
+                .setUserEntity(userEntity);
+    }
 
     public Long getId() {
         return id;

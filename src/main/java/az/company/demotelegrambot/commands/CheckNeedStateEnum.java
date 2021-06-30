@@ -10,10 +10,8 @@ public enum CheckNeedStateEnum {
     CHECK_NEED_PROCESS(bot -> {
         String text = bot.update.getMessage().getText();
         String languageCode = bot.update.getMessage().getFrom().getLanguageCode();
-        if ("Jobs".contains(text)) {
-
-        } else if (TextsEnum.DEVELOPERS_TEXT.getMsgByLang(languageCode).equalsIgnoreCase(text)) {
-
+        if (TextsEnum.DEVELOPERS_TEXT.getMsgByLang(languageCode).equalsIgnoreCase(text)) {
+            DevelopersStateEnum.FIRST.startProcess(bot);
         } else if (TextsEnum.NEW_DEVELOPER.getMsgByLang(languageCode).equalsIgnoreCase(text)) {
             RegisterStateEnum.FIRST.startProcess(bot);
         } else if (TextsEnum.NEW_VACANCY.getMsgByLang(languageCode).equalsIgnoreCase(text)) {

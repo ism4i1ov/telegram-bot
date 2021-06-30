@@ -43,7 +43,12 @@ public enum TextsEnum {
     FINISH_USER_REGISTER(EmojiParser.parseToUnicode("İstifadəçi qeydiyyatdan keçir gözləyin..."), EmojiParser.parseToUnicode("Учетная запись зарегистрируется подождите..."), EmojiParser.parseToUnicode("User will be register wait...")),
     FINISH_SUCCESS_USER_REGISTER(EmojiParser.parseToUnicode("İstifadəçi uğurla qeydiyyatdan keçdi :white_check_mark:"), EmojiParser.parseToUnicode("Учетная запись успешно зарегистрировано :white_check_mark:"), EmojiParser.parseToUnicode("User is successfully registered :white_check_mark:")),
     FINISH_ERROR_USER_REGISTER(EmojiParser.parseToUnicode("İstifadəçi qeydiyyatı uğursuz :x:"), EmojiParser.parseToUnicode("Регистрация учетной записи не успешно :x:"), EmojiParser.parseToUnicode("User can't be was registered :x:")),
-    USER_EXISTS(EmojiParser.parseToUnicode("Sizin cihaz atrıq qeydiyyatdan keçib..."), EmojiParser.parseToUnicode("Ваше устройство уже зарегистрировано..."), EmojiParser.parseToUnicode("You are device was registered..."));
+    USER_EXISTS(EmojiParser.parseToUnicode("Sizin cihaz atrıq qeydiyyatdan keçib..."), EmojiParser.parseToUnicode("Ваше устройство уже зарегистрировано..."), EmojiParser.parseToUnicode("You are device was registered...")),
+    FIND_25_PROC(EmojiParser.parseToUnicode("Axtarılır :two:" + ":five: % ..."), EmojiParser.parseToUnicode("Идет поиск :two:" + ":five: % ..."), EmojiParser.parseToUnicode("Finding :two:" + ":five: % ...")),
+    FIND_50_PROC(EmojiParser.parseToUnicode("Axtarılır :five:" + ":zero: % ..."), EmojiParser.parseToUnicode("Идет поиск :five:" + ":zero: % ..."), EmojiParser.parseToUnicode("Finding :five:" + ":zero: % ...")),
+    FIND_75_PROC(EmojiParser.parseToUnicode("Axtarılır :seven:" + ":five: % ..."), EmojiParser.parseToUnicode("Идет поиск :seven:" + ":five: % ..."), EmojiParser.parseToUnicode("Finding :seven:" + ":five: % ...")),
+    FIND_100_PROC(EmojiParser.parseToUnicode("Axtarılır :one:" + ":zero:" + ":zero: % ..."), EmojiParser.parseToUnicode("Идет поиск :one:" + ":zero:" + ":zero: % ..."), EmojiParser.parseToUnicode("Finding :one:" + ":zero:" + ":zero: % ...")),
+    FIND_RESULT_DONT_HAVE(EmojiParser.parseToUnicode("Axtarılan kateqoriyaya uyğun proqramçı tapılmadı :x:"), EmojiParser.parseToUnicode("По соответсвующей категории никого не найдено :x:"), EmojiParser.parseToUnicode("Don't have result :x:"));
 
     private final String messageRu;
     private final String messageAz;

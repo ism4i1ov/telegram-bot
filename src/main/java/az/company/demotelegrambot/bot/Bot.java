@@ -3,7 +3,7 @@ package az.company.demotelegrambot.bot;
 
 import az.company.demotelegrambot.commands.RegisterStateEnum;
 import az.company.demotelegrambot.commands.StartStateEnum;
-import az.company.demotelegrambot.entity.UserEntity;
+import az.company.demotelegrambot.dto.UsersDto;
 import az.company.demotelegrambot.service.BotService;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +21,7 @@ public class Bot extends TelegramLongPollingBot {
 
     public Update update;
     public Enum botStateEnum;
-    public UserEntity userEntity;
+    public UsersDto userDto;
     public String languageCode;
     public Long chatId;
 
@@ -52,7 +52,7 @@ public class Bot extends TelegramLongPollingBot {
             botStateEnum = RegisterStateEnum.FIRST;
             return true;
         } else if ("/start".equalsIgnoreCase(command)) {
-            botStateEnum = StartStateEnum.FIRST;
+            botStateEnum = StartStateEnum.START;
             return true;
         } else return false;
     }
@@ -80,11 +80,11 @@ public class Bot extends TelegramLongPollingBot {
         this.botStateEnum = RegisterStateEnum.NINTH;
     }
 
-    public void setUserEntity(UserEntity entity) {
-        userEntity = entity;
+    public void setUserDto(UsersDto entity) {
+        userDto = entity;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
+    public UsersDto getUserDto() {
+        return userDto;
     }
 }

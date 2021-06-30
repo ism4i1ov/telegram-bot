@@ -1,10 +1,14 @@
 package az.company.demotelegrambot.entity;
 
 
+import az.company.demotelegrambot.dto.UsersDto;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -48,6 +52,20 @@ public class UserEntity implements Serializable {
 
     @OneToOne(mappedBy = "userEntity")
     private DevelopmentLangEntity developmentLangEntity;
+
+    public static UserEntity toEntity(UsersDto dto) {
+        UserEntity userEntity = new UserEntity().setBirthDay(dto.getBirthDay())
+                .setAddress(dto.getAddress())
+                .setFatherName(dto.getFatherName())
+                .setSurname(dto.getSurname())
+                .setName(dto.getName())
+                .setChatId(dto.getChatId())
+                .setUsername(dto.getUsername())
+                .setId(dto.getId());
+        userEntity.setWorkExperienceEntities(dto.getWorkExperienceDtos().stream().map(dtos -> WorkExperienceEntity.toEntity(dtos, userEntity)).collect(Collectors.toList()));
+        userEntity.setDevelopmentLangEntity(DevelopmentLangEntity.toEntity(dto.getDevelopmentLangDto(), userEntity));
+        return userEntity;
+    }
 
     public Long getId() {
         return id;
@@ -138,5 +156,4 @@ public class UserEntity implements Serializable {
         this.birthDay = birthDay;
         return this;
     }
-
 }

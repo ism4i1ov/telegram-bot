@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 
 public enum StartStateEnum {
-    FIRST(bot -> {
+    START(bot -> {
         String languageCode = bot.languageCode;
         Long chatId = bot.chatId;
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
